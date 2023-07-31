@@ -257,4 +257,52 @@ StdStringOverlayTestSuite.test("std::string from C string") {
   expectEqual(str, std.string("abc"))
 }
 
+StdStringOverlayTestSuite.test("std::string to UTF-8") {
+  std.string().withUTF8 { ptr in
+    expectEqual(ptr.count, 0)
+  }
+  std.string("abc").withUTF8 { ptr in
+    expectEqual(ptr.count, 3)
+    expectEqual(ptr.baseAddress?.pointee, 97)
+    expectEqual(ptr.baseAddress?.successor().pointee, 98)
+    expectEqual(ptr.baseAddress?.successor().successor().pointee, 99)
+  }
+
+  let bytes: [UInt8] = [0xE1, 0xC1, 0xAC]
+  var str = std.string()
+  for byte in bytes {
+    str.push_back(CChar(bitPattern: byte))
+  }
+  str.withUTF8 { ptr in
+    expectEqual(ptr.count, 3)
+    expectEqual(ptr.baseAddress?.pointee, 0xE1)
+    expectEqual(ptr.baseAddress?.successor().pointee, 0xC1)
+    expectEqual(ptr.baseAddress?.successor().successor().pointee, 0xAC)
+  }
+}
+
+StdStringOverlayTestSuite.test("std::u16string to UTF-16") {
+  std.u16string().withUTF16 { ptr in
+    expectEqual(ptr.count, 0)
+  }
+  std.u16string("abc").withUTF16 { ptr in
+    expectEqual(ptr.count, 3)
+    expectEqual(ptr.baseAddress?.pointee, 97)
+    expectEqual(ptr.baseAddress?.successor().pointee, 98)
+    expectEqual(ptr.baseAddress?.successor().successor().pointee, 99)
+  }
+
+  let scalars: [UInt16] = [97, 55296, 99]
+  var str = std.u16string()
+  for scalar in scalars {
+    str.push_back(scalar)
+  }
+  str.withUTF16 { ptr in
+    expectEqual(ptr.count, 3)
+    expectEqual(ptr.baseAddress?.pointee, 97)
+    expectEqual(ptr.baseAddress?.successor().pointee, 55296)
+    expectEqual(ptr.baseAddress?.successor().successor().pointee, 99)
+  }
+}
+
 runAllTests()
