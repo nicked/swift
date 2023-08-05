@@ -138,7 +138,15 @@ toolchain as a one-off, there are a couple of differences:
    The required version of Xcode changes frequently and is often a beta release.
    Check this document or the host information on <https://ci.swift.org> for the
    current required version.
-2. Install [CMake][], [Ninja][] and [Sccache][]:
+1. **If you are running on Apple Silicon hardware** (M1, M2, etc):
+   Ensure you have the native arm64 build of Python configured.
+   Run `file $(which python3)`; it should print "arm64".
+   If it prints "x86_64", you are running Python in compatibility mode (Rosetta),
+   and will need to ensure the native version of Python is installed and
+   configured in your PATH.
+   Running `uname -m` should also print "arm64", otherwise your terminal is also
+   running in Rosetta mode.
+1. Install [CMake][], [Ninja][] and [Sccache][]:
    - Via [Homebrew][] (recommended):
      ```sh
      brew install cmake ninja sccache
